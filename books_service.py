@@ -1,6 +1,7 @@
-import sqlalchemy
 import json
+import os
 
+import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
 from models import create_tables
@@ -20,10 +21,20 @@ for element in json_data:
     some_object = type_object.get(element['model'])
     all_objects.append(some_object(**element['fields']))
 
-
-DSN = 'postgresql://postgres:KiaPostgre1809@localhost:5432/books_db'
+user = os.getenv('user')
+password = os.getenv('password')
+db_name = os.getenv('db_name')
+DSN = f'postgresql://{user}:{password}@localhost:5432/{db_name}'
 engine = sqlalchemy.create_engine(DSN)
-create_tables(engine)
+try:
+    create_tables(engine)
+except:
+    print('Для DSN engine не получилось загрузить данные!')
+    print('os.getenv(user) =', os.getenv('user'))
+    print('os.getenv(password) =', os.getenv('password'))
+    print('os.getenv(db_name) =', os.getenv('db_name'))
+    exit()
+    
 
 Session = sessionmaker(bind=engine)
 
